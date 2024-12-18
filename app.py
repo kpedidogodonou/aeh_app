@@ -14,6 +14,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 from base64 import b64decode
 
+load_dotenv()
  
 def display_base64_image(base64_code):
     # Decode the base64 string to binary
@@ -100,7 +101,6 @@ def build_prompt(kwargs):
 
 
 def main():
-    load_dotenv()
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
     es_cloud_id = os.getenv("ES_CLOUD_ID")
@@ -112,7 +112,7 @@ def main():
     elastic_vector_search = ElasticsearchStore(
         es_cloud_id=es_cloud_id,
         index_name="aehtextbook_rag",
-        embedding=OpenAIEmbeddings(openai_api_key=openai_api_key),
+        embedding=OpenAIEmbeddings(api_key=openai_api_key),
         es_user=es_username,
         es_password=es_password,
     )
