@@ -102,11 +102,11 @@ def build_prompt(kwargs):
 
 def main():
 
-    openai_api_key = st.secrets("OPENAI_API_KEY")
-    es_cloud_id = st.secrets("ES_CLOUD_ID")
-    es_username = st.secrets("ES_USERNAME")
-    es_password = st.secrets("ES_PASSWORD")
-    redis_url = st.secrets("REDIS_URL")
+    openai_api_key = st.secrets["OPENAI_API_KEY"]
+    es_cloud_id = st.secrets["ES_CLOUD_ID"]
+    es_username = st.secrets["ES_USERNAME"]
+    es_password = st.secrets["ES_PASSWORD"]
+    redis_url = st.secrets["REDIS_URL"]
 
     
     elastic_vector_search = ElasticsearchStore(
