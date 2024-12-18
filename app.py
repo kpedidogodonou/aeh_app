@@ -1,4 +1,4 @@
-import os 
+import os
 import json
 from dotenv import load_dotenv
 import base64
@@ -15,16 +15,14 @@ from langchain_openai import ChatOpenAI
 from base64 import b64decode
 
 load_dotenv()
- 
+
+
 def display_base64_image(base64_code):
     # Decode the base64 string to binary
     image_data = base64.b64decode(base64_code)
     filename = 'image.jpg'  # You can choose a different filename or make it dynamic
     with open(filename, 'wb') as f:
         f.write(image_data)
- 
-
-
 
 
 def parse_docs(docs):
@@ -55,7 +53,7 @@ def build_prompt(kwargs):
     if len(docs_by_type["texts"]) > 0:
         for text_element in docs_by_type["texts"]:
             # print("text_element", json.loads(text_element))
-            context_text += text_element["text"] 
+            context_text += text_element["text"]
 
     # construct prompt with context (including images)
     prompt_template = f"""
@@ -95,11 +93,6 @@ def build_prompt(kwargs):
 # )
 
 
-
- 
-
-
-
 def main():
 
     openai_api_key = st.secrets["OPENAI_API_KEY"]
@@ -108,7 +101,6 @@ def main():
     es_password = st.secrets["ES_PASSWORD"]
     redis_url = st.secrets["REDIS_URL"]
 
-    
     elastic_vector_search = ElasticsearchStore(
         es_cloud_id=es_cloud_id,
         index_name="aehtextbook_rag",
@@ -117,43 +109,40 @@ def main():
         es_password=es_password,
     )
 
- 
     store = RedisStore(redis_url=redis_url)
 
-    id_key = "doc_id" 
+    id_key = "doc_id"
 
     retriever = MultiVectorRetriever(
         vectorstore=elastic_vector_search,
         docstore=store,
-        id_key=id_key 
+        id_key=id_key
     )
 
     chain_with_sources = {
-    "context": retriever | RunnableLambda(parse_docs),
-    "question": RunnablePassthrough(),
-} | RunnablePassthrough().assign(
-    response=(
-        RunnableLambda(build_prompt)
-        | ChatOpenAI(model="gpt-4o-mini")
-        | StrOutputParser()
+        "context": retriever | RunnableLambda(parse_docs),
+        "question": RunnablePassthrough(),
+    } | RunnablePassthrough().assign(
+        response=(
+            RunnableLambda(build_prompt)
+            | ChatOpenAI(model="gpt-4o-mini")
+            | StrOutputParser()
+        )
     )
-)
-    
- 
-
 
     st.set_page_config(page_title="ASK African Economic History")
 
     st.header("Ask anything about African Economic History 💬")
-          # show user input
-    user_question = st.text_input("Ask a question about African Ecoonomic History:")
+    # show user input
+    user_question = st.text_input(
+        "Ask a question about African Ecoonomic History:")
     if user_question:
         response = chain_with_sources.invoke(user_question)
 
         print("Response:", response['response'])
 
         print("\n\nMy reponse comes from this context:")
-        contexts =[]
+        contexts = []
         for text in response['context']['texts']:
             context = {}
             context['text'] = text['text']
@@ -167,15 +156,15 @@ def main():
         # for image in response['context']['images']:
         #     display_base64_image(image)
 
-
-
-        st.write(response['response'])
+ 
 
         if contexts:
             st.header("Sources", divider=True)
-            st.write(contexts)
+            for index, context in enumerate(contexts): 
+                st.subheader(f"Source #{index + 1} from page #{context['page_number']}", divider=True)
+                st.write(f"Document: African Economic History Textbook") 
+                st.write(context['text']) 
 
-    
 
 
 
