@@ -139,7 +139,7 @@ def main():
     if user_question:
         response = chain_with_sources.invoke(user_question)
 
-        print("Response:", response['response'])
+        st.header("Answer", divider=True)
         st.write(response['response'])
         print("\n\nMy reponse comes from this context:")
         contexts = []
